@@ -1,145 +1,115 @@
-const personajes = [
-  { nombre: "Tanque", vida: 100, vidaOriginal: 100, daño: 35, defensa: 50 },
-  { nombre: "Cazador", vida: 100, vidaOriginal: 100, daño: 50, defensa: 15 },
-  { nombre: "Mago", vida: 100, vidaOriginal: 100, daño: 30, defensa: 20 },
-  { nombre: "Healer", vida: 100, vidaOriginal: 100, daño: 15, defensa: 10 },
-];
+let personaje = {
+    nombre: "Heroe",
+    vida: 100,
+    habilidadCooldown: false
+};
 
-const enemigos = [
-  { nombre: "Piromante", vida: 80, daño: 25, defensa: 30 },
-  { nombre: "Duende", vida: 60, daño: 40, defensa: 10 },
-  { nombre: "Mago Malvado", vida: 90, daño: 35, defensa: 20 },
-  { nombre: "Escorpión", vida: 120, daño: 20, defensa: 40 },
-];
+let enemigo = {
+    nombre: "Goblin",
+    vida: 100
+};
 
-let seleccion;
-let personajeElegido;
+const nombrePersonaje = document.getElementById("nombre-personaje");
+const vidaPersonaje = document.getElementById("vida-personaje");
+const nombreEnemigo = document.getElementById("nombre-enemigo");
+const vidaEnemigo = document.getElementById("vida-enemigo");
+const resultadoDiv = document.getElementById("resultado");
+const reiniciarBtn = document.getElementById("reiniciar-btn");
 
-do {
-  seleccion = prompt(`Elige un personaje:
-  1: Tanque
-  2: Cazador
-  3: Mago
-  4: Healer`);
-
-  seleccion = parseInt(seleccion);
-} while (isNaN(seleccion) || seleccion < 1 || seleccion > 4);
-
-personajeElegido = personajes[seleccion - 1];
-
-alert(`Has elegido a:
-  Nombre: ${personajeElegido.nombre}
-  Vida: ${personajeElegido.vida}
-  Daño: ${personajeElegido.daño}
-  Defensa: ${personajeElegido.defensa}`);
-
-function seleccionarEnemigo() {
-  return enemigos[Math.floor(Math.random() * enemigos.length)];
-}
-
-function mostrarEstadisticas(personaje, enemigo) {
-  console.log(`Jugador: ${personaje.nombre} - Vida: ${personaje.vida}`);
-  console.log(`Enemigo: ${enemigo.nombre} - Vida: ${enemigo.vida}`);
-}
-
-function atacar(atacante, defensor) {
-  const dañoBase = atacante.daño;
-  const defensaEnemigo = defensor.defensa;
-  const dañoFinal = Math.max(1, dañoBase - defensaEnemigo * 0.2);
-
-  defensor.vida -= dañoFinal;
-  console.log(`${atacante.nombre} ataca a ${defensor.nombre} y le hace ${dañoFinal} de daño`);
-}
-
-function defenderse(personaje) {
-  const defensaOriginal = personaje.defensa;
-  personaje.defensa *= 1.5; 
-  console.log(`${personaje.nombre} se defiende, su defensa aumenta temporalmente`);
-
-  setTimeout(() => {
-    personaje.defensa = defensaOriginal; 
-    console.log(`${personaje.nombre} ha dejado de defenderse`);
-  }, 2000);
-}
-
-function curarse(personaje) {
-  const curacion = 20;
-  personaje.vida = Math.min(personaje.vidaOriginal, personaje.vida + curacion);
-  console.log(`${personaje.nombre} se cura ${curacion} puntos de vida`);
-}
-
-function accionEnemigo(enemigo, personaje) {
-  const accion = Math.random() < 0.5 ? "Atacar" : "Defenderse";
-
-  if (accion === "Atacar") {
-    atacar(enemigo, personaje);
-  } else {
-    console.log(`${enemigo.nombre} se defiende y reducirá el daño del próximo ataque`);
-    
-    const defensaOriginalEnemigo = enemigo.defensa;
-    enemigo.defensa *= 2; 
-
-    setTimeout(() => {
-      enemigo.defensa = defensaOriginalEnemigo; 
-      console.log(`${enemigo.nombre} ha dejado de defenderse`);
-    }, 1000);
-  }
-}
-
-function mostrarEstado(personaje, enemigo) {
-  console.log(`Estado actual:
-  ${personaje.nombre} - Vida: ${personaje.vida}
-  ${enemigo.nombre} - Vida: ${enemigo.vida}`);
-}
-
-function cicloDeCombate(personaje, enemigo) {
-  while (personaje.vida > 0 && enemigo.vida > 0) {
-    let accion = prompt("¿Qué quieres hacer? \n1: Atacar \n2: Defenderse \n3: Curarse \n(Cancelar para rendirse)");
-
-    if (accion === null) {
-      console.log("Te has rendido. El combate ha terminado.");
-      alert("Te has rendido. ¡Fin del combate!");
-      return;
+const cargarJuego = () => {
+    let datosPersonaje = JSON.parse(localStorage.getItem("personaje"));
+    if (datosPersonaje) {
+        personaje = datosPersonaje;
     }
+    nombrePersonaje.textContent = personaje.nombre;
+    vidaPersonaje.textContent = personaje.vida;
+    nombreEnemigo.textContent = enemigo.nombre;
+    vidaEnemigo.textContent = enemigo.vida;
+};
 
-    switch (accion) {
-      case "1":
-        atacar(personaje, enemigo);
-        break;
-      case "2":
-        defenderse(personaje);
-        break;
-      case "3":
-        curarse(personaje);
-        break;
-      default:
-        console.log("Acción no válida");
-        continue;
+const actualizarVida = () => {
+    vidaPersonaje.textContent = personaje.vida;
+    vidaEnemigo.textContent = enemigo.vida;
+};
+
+const atacar = () => {
+    let dano = Math.floor(Math.random() * 20) + 1;
+    enemigo.vida -= dano;
+    resultadoDiv.textContent = `¡Atacaste al ${enemigo.nombre} y le hiciste ${dano} puntos de daño!`;
+    if (enemigo.vida <= 0) {
+        resultadoDiv.textContent = `¡Has derrotado al ${enemigo.nombre}!`;
+        mostrarBotonReiniciar();
     }
+    actualizarVida();
+    turnoEnemigo();
+};
 
-    if (enemigo.vida > 0) {
-      accionEnemigo(enemigo, personaje);
+const defender = () => {
+    let defensa = Math.floor(Math.random() * 10) + 1;
+    personaje.vida += defensa;
+    resultadoDiv.textContent = `Te defendiste y recuperaste ${defensa} puntos de vida.`;
+    actualizarVida();
+    turnoEnemigo();
+};
+
+const curar = () => {
+    if (personaje.vida < 100) {
+        let curacion = Math.floor(Math.random() * 20) + 1;
+        personaje.vida += curacion;
+        if (personaje.vida > 100) personaje.vida = 100;
+        resultadoDiv.textContent = `Te curaste ${curacion} puntos de vida.`;
+    } else {
+        resultadoDiv.textContent = "Tu vida ya está al máximo.";
     }
+    actualizarVida();
+    turnoEnemigo();
+};
 
-    mostrarEstado(personaje, enemigo);
-  }
+const habilidadEspecial = () => {
+    if (personaje.habilidadCooldown) {
+        resultadoDiv.textContent = "La habilidad especial está en cooldown.";
+    } else {
+        let dano = Math.floor(Math.random() * 40) + 10;
+        enemigo.vida -= dano;
+        resultadoDiv.textContent = `¡Usaste tu habilidad especial! Hiciste ${dano} puntos de daño al enemigo.`;
+        personaje.habilidadCooldown = true;
+        setTimeout(() => { personaje.habilidadCooldown = false; }, 5000);
+        if (enemigo.vida <= 0) {
+            resultadoDiv.textContent = `¡Has derrotado a ${enemigo.nombre}!`;
+            mostrarBotonReiniciar();
+        }
+        actualizarVida();
+        turnoEnemigo();
+    }
+};
 
-  if (personaje.vida <= 0) {
-    console.log("Has perdido el combate.");
-    alert("¡Has perdido el combate!");
-  } else if (enemigo.vida <= 0) {
-    console.log("¡Has ganado el combate!");
-    alert("¡Has ganado el combate!");
-  }
-}
+const turnoEnemigo = () => {
+    let dano = Math.floor(Math.random() * 15) + 1;
+    personaje.vida -= dano;
+    if (personaje.vida <= 0) {
+        resultadoDiv.textContent = `¡Has sido derrotado por un ${enemigo.nombre}!`;
+        mostrarBotonReiniciar();
+    }
+    actualizarVida();
+};
 
-function iniciarCombate() {
-  let enemigo = seleccionarEnemigo();
+const mostrarBotonReiniciar = () => {
+    reiniciarBtn.style.display = "block";
+    reiniciarBtn.addEventListener("click", reiniciarCombate);
+};
 
-  alert(`Tu enemigo es: ${enemigo.nombre}`);
-  mostrarEstadisticas(personajeElegido, enemigo);
+const reiniciarCombate = () => {
+    personaje = { nombre: "Heroe", vida: 100, habilidadCooldown: false };
+    enemigo = { nombre: "Goblin", vida: 100 };
+    resultadoDiv.textContent = "";
+    actualizarVida();
+    reiniciarBtn.style.display = "none";
+    localStorage.setItem("personaje", JSON.stringify(personaje));
+};
 
-  cicloDeCombate(personajeElegido, enemigo);
-}
+cargarJuego();
 
-iniciarCombate();
+document.getElementById("atacar").addEventListener("click", atacar);
+document.getElementById("defender").addEventListener("click", defender);
+document.getElementById("curar").addEventListener("click", curar);
+document.getElementById("habilidad").addEventListener("click", habilidadEspecial);

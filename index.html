@@ -1,12 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Simulador de Combate</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
+    <div class="game-container">
+        <h1>Simulador de Combate</h1>
+        
+        <div id="personaje-info">
+            <h3>Personaje:</h3>
+            <p id="personaje-nombre">Nombre: <span id="nombre-personaje">Sin nombre</span></p>
+            <p id="personaje-vida">Vida: <span id="vida-personaje">100</span></p>
+        </div>
+
+        <div id="enemigo-info">
+            <h3>Enemigo:</h3>
+            <p id="enemigo-nombre">Nombre: <span id="nombre-enemigo">Goblin</span></p>
+            <p id="enemigo-vida">Vida: <span id="vida-enemigo">100</span></p>
+        </div>
+
+        <div id="acciones">
+            <button id="atacar">Atacar</button>
+            <button id="defender">Defender</button>
+            <button id="curar">Curar</button>
+            <button id="habilidad">Habilidad Especial</button>
+        </div>
+
+        <div id="resultado"></div>
+        <div id="reiniciar">
+            <button id="reiniciar-btn" style="display:none;">Reiniciar Combate</button>
+        </div>
+    </div>
+
     <script src="main.js"></script>
 </body>
 </html>
