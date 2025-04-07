@@ -1,0 +1,10 @@
+{
+    "personaje": {
+        "nombre": "Heroe",
+        "vida": 100
+    },
+    "enemigo": {
+        "nombre": "Goblin",
+        "vida": 100
+    }
+}

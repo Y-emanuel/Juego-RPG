@@ -53,3 +53,11 @@ button:disabled {
 #reiniciar-btn {
     margin-top: 20px;
 }
+
+#resetear-historial {
+    background-color: #e53935;
+}
+
+#resetear-historial:hover {
+    background-color: #d32f2f;
+}
